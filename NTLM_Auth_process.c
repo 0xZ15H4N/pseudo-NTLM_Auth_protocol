@@ -50,16 +50,16 @@ struct Client_computer{
 };
 
 char* GenerateRandom16BytesString() {
-    char* str = malloc(17); // 16 chars + null terminator
-    if (!str) return NULL; // check malloc
+    char* nonce = malloc(17); // 16 chars + null terminator
+    if (!nonce) return NULL; // check malloc
 
     const int min = 32, max = 126;
 
     for (int i = 0; i < 16; i++) {
-        str[i] = (char)(rand() % (max - min + 1) + min);
+        nonce[i] = (char)(rand() % (max - min + 1) + min);
     }
-    str[16] = '\0'; // null-terminate
-    return str;
+    nonce[16] = '\0'; // null-terminate
+    return nonce;
 }
 
 
