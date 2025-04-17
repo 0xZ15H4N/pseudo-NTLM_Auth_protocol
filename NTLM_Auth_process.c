@@ -74,11 +74,11 @@ struct Client_computer * client_computer(){
     return info;
 }
 
-char * Encryption(const unsigned char* Hash_password,char* random16bytestr){
+char * Encryption(const unsigned char* Hash_password,char* nonce){
     size_t i = 0;
     char *encrypted = malloc(Hash_size);
     while(i<Hash_size){
-        encrypted[i]= Hash_password[i] ^ random16bytestr[i];
+        encrypted[i]= Hash_password[i] ^ nonce[i];
 	i++;
 }
     return encrypted;
@@ -86,7 +86,7 @@ char * Encryption(const unsigned char* Hash_password,char* random16bytestr){
 
 
 
-bool domain_controller(char* Username,unsigned char* Hash_password, char*Random16Bytesstr){
+bool domain_controller(char* Username,unsigned char* Hash_password, char*nonce){
 
     bool User_check = false;
     size_t current_users = 0;
@@ -99,8 +99,8 @@ bool domain_controller(char* Username,unsigned char* Hash_password, char*Random1
         }
     }
     if(User_check){
-        char * Encryption1 = Encryption(Hash_password,Random16Bytesstr);
-	char * Encryption2 = Encryption(sam.users[current_users]->NTML_Hash,Random16Bytesstr);
+        char * Encryption1 = Encryption(Hash_password,nonce);
+	char * Encryption2 = Encryption(sam.users[current_users]->NTML_Hash,nonce);
 	if(memcmp(Encryption1,Encryption2,Hash_size)==0){
             return true;
         }else{
@@ -119,7 +119,7 @@ int main(){
     struct Client_computer * User = client_computer();
     unsigned char MD4_Password[MD4_DIGEST_LENGTH];
     MD4((unsigned char *)User->Password,strlen(User->Password),MD4_Password);
-    if(domain_controller(User->Username,MD4_Password,GenerateRandom16BytesString())){
+    if(domain_controller(User->Username,MD4_Password,Generatenonceing())){
         printf("WELCOME %s",User->Username);
     }else{
         printf("User Not found!");
