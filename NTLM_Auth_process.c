@@ -14,6 +14,7 @@
 #define Max_Users 2
 
 struct UserInfo{
+    //Format of User's info saved in sam file
     char name[32];
     char id[4];
     char LM_Hash[16];
@@ -65,16 +66,24 @@ char* GenerateRandom16BytesString() {
 
 struct Client_computer * client_computer(){
     struct Client_computer *info = malloc(Client_computer_size);
+    //taking user's Input 
     printf("Enter Username: ");
     fgets(info->Username,sizeof(info->Username),stdin);
     info->Username[strcspn(info->Username,"\n")] =0;
     printf("Enter Password: ");
     fgets(info->Password,sizeof(info->Password),stdin);
     info->Password[strcspn(info->Password,"\n")] = 0;
+    
+    //converting users Password Into MD4-Hash
+    unsigned char MD4_Password[MD4_DIGEST_LENGTH];
+    MD4((unsigned char *)info->Password,strlen(info->Password),MD4_Password);
+    memcpy(info->Password,MD4_Password,MD4_DIDEST_LENGTH);
     return info;
 }
 
 char * Encryption(const unsigned char* Hash_password,char* nonce){
+    //Real encryption doesn't look like for the sake of easiness i Have xored each bytes of nonce with hash=password
+
     size_t i = 0;
     char *encrypted = malloc(Hash_size);
     while(i<Hash_size){
@@ -91,6 +100,7 @@ bool domain_controller(char* Username,unsigned char* Hash_password, char*nonce){
     bool User_check = false;
     size_t current_users = 0;
     while(current_users!=Max_Users){
+        //checking if the username exist or not
         if(!strncmp(Username,sam.users[current_users]->name,32)){
             User_check = true;
             break;
@@ -99,14 +109,14 @@ bool domain_controller(char* Username,unsigned char* Hash_password, char*nonce){
         }
     }
     if(User_check){
-        char * Encryption1 = Encryption(Hash_password,nonce);
+    //if Username exist then we verify its password 
+    char * Encryption1 = Encryption(Hash_password,nonce);
 	char * Encryption2 = Encryption(sam.users[current_users]->NTML_Hash,nonce);
 	if(memcmp(Encryption1,Encryption2,Hash_size)==0){
             return true;
         }else{
-		
-	    printf("Password Incorrect!");
-	    exit(0);
+	        printf("Password Incorrect!");
+	        exit(0);
         }
 
     }else{
@@ -116,10 +126,10 @@ bool domain_controller(char* Username,unsigned char* Hash_password, char*nonce){
 }
 
 int main(){
+    //First we take the input from user
     struct Client_computer * User = client_computer();
-    unsigned char MD4_Password[MD4_DIGEST_LENGTH];
-    MD4((unsigned char *)User->Password,strlen(User->Password),MD4_Password);
-    if(domain_controller(User->Username,MD4_Password,Generatenonceing())){
+    // simple bool value check  
+    if(domain_controller(User->Username,User->Password,Generatenonceing())){
         printf("WELCOME %s",User->Username);
     }else{
         printf("User Not found!");
