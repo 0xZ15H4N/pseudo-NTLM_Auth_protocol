@@ -77,7 +77,7 @@ struct Client_computer * client_computer(){
     //converting users Password Into MD4-Hash
     unsigned char MD4_Password[MD4_DIGEST_LENGTH];
     MD4((unsigned char *)info->Password,strlen(info->Password),MD4_Password);
-    memcpy(info->Hash_Password,MD4_Password,MD4_DIDEST_LENGTH);
+    memcpy(info->Hash_Password,MD4_Password,MD4_DIGEST_LENGTH);
     return info;
 }
 
@@ -129,7 +129,7 @@ int main(){
     //First we take the input from user
     struct Client_computer * User = client_computer();
     // simple bool value check  
-    if(domain_controller(User->Username,User->Hash_Password,Generatenonceing())){
+    if(domain_controller(User->Username,User->Hash_Password,GenerateRandom16BytesString())){
         printf("WELCOME %s",User->Username);
     }else{
         printf("User Not found!");
