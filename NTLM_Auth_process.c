@@ -48,6 +48,7 @@ void __attribute__((constructor)) LoadUsers(){
 struct Client_computer{
     char Username[32];  //LIMIT TO ONLY 32 LEN FOR USERNAME AND PASSWORD
     char Password[32];
+    unsigned char Hash_Password[MD4_DIGEST_LENGTH];
 };
 
 char* GenerateRandom16BytesString() {
@@ -73,11 +74,10 @@ struct Client_computer * client_computer(){
     printf("Enter Password: ");
     fgets(info->Password,sizeof(info->Password),stdin);
     info->Password[strcspn(info->Password,"\n")] = 0;
-    
     //converting users Password Into MD4-Hash
     unsigned char MD4_Password[MD4_DIGEST_LENGTH];
     MD4((unsigned char *)info->Password,strlen(info->Password),MD4_Password);
-    memcpy(info->Password,MD4_Password,MD4_DIDEST_LENGTH);
+    memcpy(info->Hash_Password,MD4_Password,MD4_DIDEST_LENGTH);
     return info;
 }
 
@@ -129,7 +129,7 @@ int main(){
     //First we take the input from user
     struct Client_computer * User = client_computer();
     // simple bool value check  
-    if(domain_controller(User->Username,User->Password,Generatenonceing())){
+    if(domain_controller(User->Username,User->Hash_Password,Generatenonceing())){
         printf("WELCOME %s",User->Username);
     }else{
         printf("User Not found!");
