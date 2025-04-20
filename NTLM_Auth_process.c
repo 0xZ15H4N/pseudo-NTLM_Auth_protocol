@@ -40,6 +40,7 @@ struct UserInfo* LoadUserInfo(char*name,char*id,char*Hash1){
 
 
 void __attribute__((constructor)) LoadUsers(){
+	srand(time(0)); //setting seed value to current time ! 
     sam.users[0]= LoadUserInfo("Sheila","1001","NO PASSWORD*****");
     sam.users[1]= LoadUserInfo("Umar","1002","NO PASSWORD*****");
 }
